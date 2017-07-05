@@ -5,7 +5,7 @@ from functools import partial
 from PyQt5.QtCore import QProcess
 from pykeyboard import PyKeyboard
 
-from .abstract_bot import AbstractBot
+from bots.abstract_bot import AbstractBot
 from bots.action import Action
 from bots.utility import getWindow
 from assisstant.local_settings import VIDEO_DIR
