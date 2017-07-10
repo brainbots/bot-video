@@ -1,5 +1,4 @@
 import os, fnmatch
-from time import sleep
 from functools import partial
 
 from PyQt5.QtCore import QProcess
@@ -7,8 +6,8 @@ from pykeyboard import PyKeyboard
 
 from bots.abstract_bot import AbstractBot
 from bots.action import Action
-from bots.utility import getWindow
-from assisstant.local_settings import VIDEO_DIR
+from bots.utility import waitForWindowByTitle
+from local_settings import VIDEO_DIR
 
 
 class VideoBot(AbstractBot):
@@ -27,22 +26,15 @@ class VideoBot(AbstractBot):
       for f in files:
         _lower = f.lower()
         if _lower.endswith(('.avi', '.mkv', '.mp4')) and fnmatch.fnmatch(_lower, "*{}*".format(query)):
-          self.video = f
+          self.video_path = os.path.abspath(os.path.join(root, f))
+          self.video_title = f
           #TODO: if many matches, allow the user to choose which one
           break
 
   def execute(self):
     try:
-      self.process.start("/usr/bin/xdg-open {}".format(self.video))
-      criteria = {'wm_class': "vlc.vlc"}
-      print(criteria)
-      wnd = None
-      while True:
-        wnd = getWindow(criteria)
-        if wnd is None:
-          sleep(0.01)
-        else:
-          break
+      self.process.start("/usr/bin/xdg-open \"{}\"".format(self.video_path))
+      wnd = waitForWindowByTitle(self.video_title)
       self.keyboard = PyKeyboard()
       return Action(action_type = 'embed', body = {'hwnd': wnd['hwnd'], 'commands': self.commands}, bot = self.id, keep_context = False)
     except Exception as e:
